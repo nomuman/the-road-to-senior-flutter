@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronsRight, Target, BookOpen, GitMerge, User, X, CheckCircle, HelpCircle, Award, Keyboard, Globe, Github, ExternalLink } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { ChevronsRight, Target, BookOpen, GitMerge, User, X, CheckCircle, Award, Keyboard, Globe, Github, ExternalLink } from 'lucide-react';
 import { useTheme } from '@/app/providers/ThemeProvider';
 import type { LearningModule, Lesson, Progress, QuizQuestion } from '@/types/learning';
 import './App.css';
@@ -408,7 +408,7 @@ const RoadmapScreen: React.FC<RoadmapScreenProps> = ({ learningData, progress })
       {/* 縦線 */}
       <div className="absolute top-0 bottom-0 left-8 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
 
-      {learningData.flatMap((module: LearningModule) => module.lessons).map((lesson: Lesson, index: number) => (
+      {learningData.flatMap((module: LearningModule) => module.lessons).map((lesson: Lesson) => (
         <div key={lesson.id} className="mb-8 relative">
           <div className={`absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full ${progress[lesson.id] ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
           <div className={`p-4 rounded-xl shadow-md border ${progress[lesson.id] ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>

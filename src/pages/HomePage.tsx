@@ -1,6 +1,5 @@
 import React from 'react';
-import { ChevronsRight, Target, BookOpen, GitMerge, User } from 'lucide-react';
-import type { LearningModule, Progress } from '@/types/learning'; // 型定義をインポート
+import { ChevronsRight, BookOpen, GitMerge } from 'lucide-react';
 
 interface HomeScreenProps {
   setActiveScreen: (screen: string) => void;

@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { supabase } from '@/shared/api/supabase';
-import type { User } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 interface AuthState {
   user: User | null;
@@ -16,7 +17,7 @@ const useAuthStore = create<AuthState>((set) => ({
 }));
 
 // 認証状態を監視し、Zustandストアを更新する
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange((_event, session) => {
   useAuthStore.getState().setUser(session?.user || null);
   useAuthStore.setState({ isLoading: false }); // 認証状態の初期ロード完了
 });
@@ -26,7 +27,7 @@ export const useAuth = () => {
   const queryClient = useQueryClient();
 
   // 現在のユーザーセッションを取得するクエリ
-  const { data: session, isLoading: isSessionLoading } = useQuery({
+  const { data: sessionData, isLoading: isSessionLoading } = useQuery<Session | null>({
     queryKey: ['session'],
     queryFn: async () => {
       const { data, error } = await supabase.auth.getSession();
@@ -34,10 +35,14 @@ export const useAuth = () => {
       return data.session;
     },
     staleTime: Infinity, // セッションは頻繁に変わらないため
-    onSuccess: (data) => {
-      setUser(data?.user || null);
-    },
   });
+
+  useEffect(() => {
+    if (sessionData) {
+      setUser(sessionData.user);
+    }
+  }, [sessionData, setUser]);
+
 
   // サインアップミューテーション
   const signUpMutation = useMutation({
