@@ -1,54 +1,65 @@
-# React + TypeScript + Vite
+# Flutter Staff Engineer Roadmap
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+このプロジェクトは、Flutterエンジニアがスタッフエンジニアになるためのロードマップを提供するWebアプリケーションです。
 
-Currently, two official plugins are available:
+## 概要
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+このアプリケーションは、Flutterエンジニアとしてのキャリアパスを可視化し、次のステップに進むために必要なスキルや知識を体系的に学ぶことを目的としています。
 
-## Expanding the ESLint configuration
+## 主な使用技術
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **フロントエンド:**
+  - [React](https://react.dev/)
+  - [TypeScript](https://www.typescriptlang.org/)
+  - [Vite](https://vitejs.dev/)
+  - [Tailwind CSS](https://tailwindcss.com/)
+  - [shadcn/ui](https://ui.shadcn.com/)
+- **バックエンド:**
+  - [Supabase](https://supabase.com/)
+- **テスト:**
+  - [Vitest](https://vitest.dev/)
+  - [Playwright](https://playwright.dev/)
+- **UIコンポーネント開発:**
+  - [Storybook](https://storybook.js.org/)
+- **静的解析・フォーマット:**
+  - [ESLint](https://eslint.org/)
+  - [Prettier](https://prettier.io/)
+- **Gitフック:**
+  - [Husky](https://typicode.github.io/husky/)
+  - [lint-staged](https://github.com/lint-staged/lint-staged)
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## セットアップ
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+1. **リポジトリをクローンします:**
+   ```bash
+   git clone https://github.com/your-username/flutter-staff-engineer-roadmap.git
+   cd flutter-staff-engineer-roadmap
+   ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+2. **依存関係をインストールします:**
+   ```bash
+   npm install
+   ```
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+3. **環境変数を設定します:**
+   `.env.local` ファイルを作成し、SupabaseのプロジェクトURLとAnonキーを設定します。
+
+   ```.env.local
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **開発サーバーを起動します:**
+   ```bash
+   npm run dev
+   ```
+   ブラウザで `http://localhost:5173` を開きます。
+
+## 利用可能なスクリプト
+
+- `npm run dev`: 開発モードでアプリケーションを起動します。
+- `npm run build`: 本番用にアプリケーションをビルドします。
+- `npm run lint`: ESLintを実行してコードをチェックします。
+- `npm run preview`: ビルドされたアプリケーションをプレビューします。
+- `npm run storybook`: Storybookを起動します。
+- `npm run build-storybook`: Storybookをビルドします。
