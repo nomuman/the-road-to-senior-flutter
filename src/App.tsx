@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronsRight, Target, BookOpen, GitMerge, User, X, CheckCircle, Award, Keyboard, Globe, Github, ExternalLink } from 'lucide-react';
 import { useTheme } from '@/app/providers/ThemeProvider';
 import type { LearningModule, Lesson, Progress, QuizQuestion } from '@/types/learning';
@@ -8,10 +8,35 @@ import './App.css';
 export default function App() {
   const { theme, setTheme } = useTheme();
   const [activeScreen, setActiveScreen] = useState('home');
-  const learningData: LearningModule[] = useLearningData();
+  const initialLearningData = useLearningData();
+  const [learningData, setLearningData] = useState<LearningModule[]>(initialLearningData);
   const [progress, setProgress] = useState<Progress>({});
   const [quizModal, setQuizModal] = useState<{ isOpen: boolean; lesson: Lesson | null }>({ isOpen: false, lesson: null });
   const [detailModal, setDetailModal] = useState<{ isOpen: boolean; lesson: Lesson | null }>({ isOpen: false, lesson: null });
+
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const response = await fetch('/quiz_data.json');
+        const quizData: Record<string, QuizQuestion[]> = await response.json();
+
+        const updatedData = initialLearningData.map(module => ({
+          ...module,
+          lessons: module.lessons.map(lesson => ({
+            ...lesson,
+            quiz: {
+              questions: quizData[lesson.id] || [],
+            },
+          })),
+        }));
+        setLearningData(updatedData);
+      } catch (error) {
+        console.error("Failed to fetch quiz data:", error);
+      }
+    };
+
+    fetchQuizzes();
+  }, [initialLearningData]);
 
   // 進捗状況を更新する関数
   const toggleProgress = (id: string) => {
@@ -506,9 +531,11 @@ function useLearningData(): LearningModule[] {
       title: '基礎固め',
       description: 'FlutterとDartの基本をマスターする',
       lessons: [
-        { id: 'f1', title: 'Dart言語の基礎', moduleTitle: '基礎固め', objective: '変数、型、制御構文、関数などDartの基本を理解する。', concepts: ['静的型付け', 'Null Safety', '基本的なデータ型', '非同期処理の基本 (Future)'], relevance: 'Flutterフレームワークの土台となる言語です。堅牢なコードを書くための第一歩となります。' },
-        { id: 'f2', title: 'Widgetの概念', moduleTitle: '基礎固め', objective: 'StatelessWidgetとStatefulWidgetの違いを理解し、宣言的なUI構築の考え方を学ぶ。', concepts: ['Everything is a Widget', 'StatelessWidget', 'StatefulWidget', 'Widgetツリー', 'BuildContext'], relevance: 'FlutterのUI構築における最も中心的な概念。ここを理解することが全ての基本です。' },
-        { id: 'f3', title: '基本的なレイアウト', moduleTitle: '基礎固め', objective: 'Row, Column, Stack, Containerを使って基本的な画面レイアウトを組めるようになる。', concepts: ['Flexレイアウト', 'MainAxisAlignment/CrossAxisAlignment', 'StackとPositioned', 'Padding/Margin'], relevance: 'あらゆるUIの基礎となるレイアウトスキル。複雑な画面もこれらの組み合わせで構築されます。' },
+        { id: 'f1', title: 'Dart言語の基礎', moduleTitle: '基礎固め', objective: '変数、型、制御構文、関数などDartの基本を理解する。', concepts: ['静的型付け', 'Null Safety', '基本的なデータ型', '非同期処理の基本 (Future)'], relevance: 'Flutterフレームワークの土台となる言語です。堅牢なコードを書くための第一歩となります。'},
+        { id: 'f2', title: 'Widgetの概念', moduleTitle: '基礎固め', objective: 'StatelessWidgetとStatefulWidgetの違いを理解し、宣言的なUI構築の考え方を学ぶ。', concepts: ['Everything is a Widget', 'StatelessWidget', 'StatefulWidget', 'Widgetツリー', 'BuildContext'], relevance: 'FlutterのUI構築における最も中心的な概念。ここを理解することが全ての基本です。'},
+        { id: 'f3', title: '基本的なレイアウト', moduleTitle: '基礎固め', objective: 'Row, Column, Stack, Containerを使って基本的な画面レイアウトを組めるようになる。', concepts: ['Flexレイアウト', 'MainAxisAlignment/CrossAxisAlignment', 'StackとPositioned', 'Padding/Margin'], relevance: 'あらゆるUIの基礎となるレイアウトスキル。複雑な画面もこれらの組み合わせで構築されます。'},
+        { id: 'f4', title: '画面遷移 (Navigation)', moduleTitle: '基礎固め', objective: 'Navigatorを使い、複数の画面を持つアプリケーションを作成できるようになる。', concepts: ['Navigator', 'Route', 'MaterialPageRoute', 'push/pop', '名前付きルート'], relevance: '単一画面で完結するアプリは稀です。ユーザーを異なる機能へ導くための必須スキルです。' },
+        { id: 'f5', title: 'ユーザー入力とフォーム', moduleTitle: '基礎固め', objective: 'TextFieldやButtonなどの入力Widgetを使い、ユーザーからの入力を処理できるようになる。', concepts: ['TextField', 'Form', 'TextEditingController', 'バリデーション', 'イベントハンドリング'], relevance: 'ログイン、検索、設定など、ユーザーとのインタラクションの基本となる機能です。' },
       ],
     },
     {
@@ -517,15 +544,10 @@ function useLearningData(): LearningModule[] {
       description: 'スケーラブルなアプリの設計手法',
       lessons: [
         { id: 'a1', title: '状態管理の重要性', moduleTitle: 'アーキテクチャ', objective: 'setStateの限界を理解し、状態管理ライブラリの必要性を学ぶ。', concepts: ['状態(State)とは', 'UIとロジックの分離', '単方向データフロー', 'Prop Drillingの問題点'], relevance: 'アプリが複雑になるにつれて、コードの保守性・テスト容易性を保つために不可欠な知識です。' },
-        { id: 'a2', title: 'BLoCパターン (flutter_bloc)', moduleTitle: 'アーキテクチャ', objective: 'イベント、状態、Blocの役割を理解し、flutter_blocを使って実装できるようになる。', concepts: ['Business Logic Component', 'Events', 'States', 'Bloc/Cubit', 'BlocProvider/BlocBuilder'], relevance: 'Headspaceの求人で「flutter_bloc経験はプラス」と名指しされている最重要スキルの一つ。' ,
-          quiz: {
-            questions: [
-              { question: 'BLoCにおいて、UIからの入力を受け取るのは主に何ですか？', options: ['State', 'Event', 'Repository', 'Widget'], correctAnswer: 1, explanation: 'UIからのユーザー操作などはEventとしてBlocに渡されます。' },
-              { question: 'BlocとCubitの主な違いは何ですか？', options: ['CubitはEventを使わない', 'Blocは状態を持たない', 'Cubitは非同期処理ができない', 'BlocはWidgetである'], correctAnswer: 0, explanation: 'Cubitは関数を直接呼び出して状態を更新するシンプルなアプローチで、Eventを定義する必要がありません。' },
-            ]
-          }},
-        { id: 'a3', title: 'Riverpodによる状態管理', moduleTitle: 'アーキテクチャ', objective: 'Providerの概念とRiverpodの利点を理解し、基本的な使い方を習得する。', concepts: ['Provider', 'Consumer', 'StateNotifierProvider', 'FutureProvider', 'DI (依存性注入)'], relevance: '現代的なFlutter開発で広く採用されている状態管理手法。コンパイルセーフでテストしやすいのが特徴です。' },
-        { id: 'a4', title: 'MVVMアーキテクチャ', moduleTitle: 'アーキテクチャ', objective: 'MVVMの各層(Model, View, ViewModel)の役割を理解し、Flutterで実践する。', concepts: ['責務の分離', 'ViewModelの役割', 'ViewとViewModelの結合', 'Modelの抽象化'], relevance: '求人票に記載のある「アーキテクチャ設計パターン(MVVM)」に直結するスキル。大規模開発での標準的な設計手法です。' },
+        { id: 'a2', title: 'Providerによるシンプルな状態管理', moduleTitle: 'アーキテクチャ', objective: 'Providerの基本的な使い方を理解し、シンプルな状態共有を実装できるようになる。', concepts: ['ChangeNotifierProvider', 'ChangeNotifier', 'Consumer', 'Provider.of'], relevance: 'BLoCやRiverpodへのステップアップとして、また小規模な状態管理に適した、Flutterチームも推奨する基本的な手法です。' },
+        { id: 'a3', title: 'BLoCパターン (flutter_bloc)', moduleTitle: 'アーキテクチャ', objective: 'イベント、状態、Blocの役割を理解し、flutter_blocを使って実装できるようになる。', concepts: ['Business Logic Component', 'Events', 'States', 'Bloc/Cubit', 'BlocProvider/BlocBuilder'], relevance: 'Headspaceの求人で「flutter_bloc経験はプラス」と名指しされている最重要スキルの一つ。'},
+        { id: 'a4', title: 'Riverpodによる状態管理', moduleTitle: 'アーキテクチャ', objective: 'Providerの概念とRiverpodの利点を理解し、基本的な使い方を習得する。', concepts: ['Provider', 'Consumer', 'StateNotifierProvider', 'FutureProvider', 'DI (依存性注入)'], relevance: '現代的なFlutter開発で広く採用されている状態管理手法。コンパイルセーフでテストしやすいのが特徴です。'},
+        { id: 'a5', title: 'MVVMアーキテクチャ', moduleTitle: 'アーキテクチャ', objective: 'MVVMの各層(Model, View, ViewModel)の役割を理解し、Flutterで実践する。', concepts: ['責務の分離', 'ViewModelの役割', 'ViewとViewModelの結合', 'Modelの抽象化'], relevance: '求人票に記載のある「アーキテクチャ設計パターン(MVVM)」に直結するスキル。大規模開発での標準的な設計手法です。' },
       ],
     },
     {
@@ -533,15 +555,23 @@ function useLearningData(): LearningModule[] {
       title: '上級トピックと実践',
       description: 'シニアエンジニアに求められるスキル',
       lessons: [
-        { id: 'ad1', title: 'テスト戦略 (TDD)', moduleTitle: '上級トピック', objective: '単体テスト、ウィジェットテスト、統合テストの違いを理解し、それぞれを記述できるようになる。', concepts: ['Test-Driven Development (TDD)', 'Unit Test', 'Widget Test', 'Integration Test', 'Mocking (Mockito)'], relevance: '求人票の必須スキル。品質の高いコードを保証し、リファクタリングを容易にするための生命線です。' ,
-          quiz: {
-            questions: [
-              { question: '単一の関数やクラスのロジックを検証するテストはどれですか？', options: ['ウィジェットテスト', '統合テスト', '単体テスト', 'E2Eテスト'], correctAnswer: 2, explanation: '単体テストは、UIや外部依存から切り離して、特定のロジックを検証します。' },
-            ]
-          }},
+        { id: 'ad1', title: 'テスト戦略 (TDD)', moduleTitle: '上級トピック', objective: '単体テスト、ウィジェットテスト、統合テストの違いを理解し、それぞれを記述できるようになる。', concepts: ['Test-Driven Development (TDD)', 'Unit Test', 'Widget Test', 'Integration Test', 'Mocking (Mockito)'], relevance: '求人票の必須スキル。品質の高いコードを保証し、リファクタリングを容易にするための生命線です。'},
         { id: 'ad2', title: 'ネイティブ連携 (Platform Channels)', moduleTitle: '上級トピック', objective: 'MethodChannelを使い、Flutterとネイティブ(iOS/Android)間で通信できるようになる。', concepts: ['MethodChannel', 'EventChannel', 'Platform-specific code', 'iOS(Swift/Obj-C)とAndroid(Kotlin/Java)の呼び出し'], relevance: '「3年以上のiOS開発経験」が求められている背景には、ネイティブ機能の呼び出しや既存ネイティブ資産との連携が期待されていることがあります。' },
         { id: 'ad3', title: 'パフォーマンス最適化', moduleTitle: '上級トピック', objective: 'Flutter DevToolsを使い、パフォーマンスのボトルネックを特定・改善できるようになる。', concepts: ['`const`キーワードの活用', 'RepaintBoundary', 'ListView.builder', 'Flutter DevTools (Performance/Inspector)'], relevance: '6500万人以上のユーザーに快適な体験を提供するため、パフォーマンスへの深い理解は不可欠です。' },
         { id: 'ad4', title: 'クラウド連携とAPI通信', moduleTitle: '上級トピック', objective: 'REST APIやFirebaseなどのバックエンドと非同期に通信し、データを取得・表示できるようになる。', concepts: ['http/dioパッケージ', 'JSONのシリアライズ/デシリアライズ', 'FutureBuilder/StreamBuilder', 'エラーハンドリング'], relevance: '求人票にある「クラウドアーキテクチャ」の知識は、モバイルアプリが単体で完結しない現代において必須のスキルです。' },
+        { id: 'ad5', title: '高度なアニメーション', moduleTitle: '上級トピック', objective: 'ImplicitlyAnimatedWidgetやAnimationControllerを使い、リッチなUI表現を実装できるようになる。', concepts: ['AnimatedContainer', 'Heroアニメーション', 'AnimationController', 'Tween', 'CustomPainter'], relevance: 'ユーザー体験を向上させ、アプリの魅力を高めるための重要な要素です。' },
+        { id: 'ad6', title: 'セキュリティの基礎', moduleTitle: '上級トピック', objective: 'セキュアなデータ保存、API通信、難読化など、モバイルアプリの基本的なセキュリティ対策を理解する。', concepts: ['flutter_secure_storage', 'HTTPS', '証明書ピニング', 'コードの難読化 (obfuscation)'], relevance: 'ユーザーのデータを守り、信頼されるアプリを提供するための必須知識です。' },
+      ],
+    },
+    {
+      id: 'practical',
+      title: 'UI/UXと実務応用',
+      description: 'プロダクト開発を成功に導く',
+      lessons: [
+        { id: 'p1', title: 'デザインシステムとUIコンポーネント', moduleTitle: '実務応用', objective: '再利用可能なUIコンポーネントを作成し、アプリ全体で一貫したデザインを維持する方法を学ぶ。', concepts: ['デザインシステムとは', 'コンポーネント駆動開発', 'Storybook', 'Theming'], relevance: '開発効率と品質を両立させ、ブランドイメージを統一するために不可欠なプラクティスです。' },
+        { id: 'p2', title: 'アクセシビリティ (a11y)', moduleTitle: '実務応用', objective: '全てのユーザーがアプリを利用できるよう、アクセシビリティ対応を実装できるようになる。', concepts: ['Semantics Widget', 'TalkBack/VoiceOver', 'コントラスト比', 'タップ領域の確保'], relevance: 'より多くのユーザーにリーチし、インクルーシブなプロダクトを作るための社会的責務でもあります。' },
+        { id: 'p3', title: 'CI/CDパイプラインの構築', moduleTitle: '実務応用', objective: 'GitHub ActionsやCodemagicを使い、テストとビルド、デプロイを自動化する。', concepts: ['継続的インテグレーション (CI)', '継続的デリバリー (CD)', 'fastlane', 'ビルドフレーバー', 'ストアへの自動デプロイ'], relevance: '「CI/CD環境の構築・運用経験」は求人票の必須スキル。開発サイクルを高速化し、ヒューマンエラーを削減します。' },
+        { id: 'p4', title: 'アプリのリリースとストア管理', moduleTitle: '実務応用', objective: 'App Store ConnectとGoogle Play Consoleでのアプリ申請、バージョン管理、ストア掲載情報の最適化(ASO)について理解する。', concepts: ['ビルド番号/バージョン', '証明書とプロビジョニング', 'スクリーンショット/説明文', '段階的リリース'], relevance: '開発したアプリを世に送り出し、ユーザーに届けるための最終関門です。' },
       ],
     },
   ], []);
